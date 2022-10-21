@@ -256,6 +256,19 @@ summary(lm_sales) # Review the results</code></pre>
 </div>
 <div id="assessing-accuracy-of-the-model" class="section level1">
 <h1>Assessing Accuracy of the model</h1>
+<p>After rejecting null hypothesis, we naturally would be interested to know the fit of the data.</p>
+<p>There are two quantities using which we can assess the accuracy 1. Residual standard error (RSE) 2. R2 statistic</p>
+<ol style="list-style-type: decimal">
+<li>RSE: RSE is the standard deviation of ϵ (Error) or the average amount by which response will deviate from the regression line. RSE = sqrt(RSS/(n-2))</li>
+</ol>
+<p>RSE provides estimate of lack of fit as an absolute measure, hence it is always difficult to know what is good value of RSE. Hence we usually go ahead with other metric which is R2 to estimate accuracy.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>R2: R2 is the proportion of variance explained by our model, hence it is always between 0 and 1</li>
+</ol>
+<p>R2 = TSS − RSS / TSS</p>
+<p>TSS = total sum of squares = E(yi − y¯)2 TSS measures the total variance RSS measures the amount of variability that is left unexplained after performing the regression</p>
+<p>Hence TSS - RSS gives explained variance in the model</p>
+<p>Value of good R2 can vary depending on Scenatio for example, if For instance, in certain problems in physics, we may know that the data truly comes from a linear model with a small residual error. In this case, we would expect to see an R2 value that is extremely close to 1, and a substantially smaller R2 value might indicate a serious problem with the experiment in which the data were generated. On the other hand, in typical applications in biology, psychology, marketing, and other domains, the linear model is at best an extremely rough approximation to the data, and residual errors due to other unmeasured factors are often very large. In this setting, we would expect only a very small proportion of the variance in the response to be explained by the predictor</p>
 </div>
 
 
