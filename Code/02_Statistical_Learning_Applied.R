@@ -98,5 +98,6 @@ dim(Boston)
 View(Boston)
 
 # To check variable association, creating correlation matrix
-ggcorrplot(cor(Boston[,names(Boston)[sapply(Boston, is.numeric)]])) 
+ggcorrplot(cor(Boston[,names(Boston)[sapply(Boston, is.numeric)]]))
+
 
