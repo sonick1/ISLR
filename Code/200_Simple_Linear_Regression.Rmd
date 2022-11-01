@@ -2,7 +2,7 @@
 title: "200_Simple_Linear_Regression"
 author: "Sonick"
 date: "10/21/2022"
-output: html_document
+output: github_document
 ---
 
 Simple Linear Regression is a very simple approach for predicting quantitative or numerical response variable using a single predictor.
