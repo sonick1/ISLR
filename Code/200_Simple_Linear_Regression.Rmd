@@ -51,13 +51,15 @@ head(Advertising)
 ```{r}
 # Since X is Serial Number column, removing it
 Advertising <- Advertising[,2:5]
+head(Advertising)
 ```
 
 ```{r}
 # Plot Linear Regression Least square Line; The shaded region around the line is confidence interval of the line; we will discuss confidence interval below
 library(ggplot2)
-ggplot(data = Advertising, aes(x = TV, y = Sales)) + geom_point(shape = 1) + geom_smooth(method = "lm")
+ggplot(data = Advertising, aes(x = TV, y = Sales)) + geom_point(shape = 1) + geom_smooth(method = "lm") + labs(title = "Sales vs TV with Linear fitted Line")
 ```
+
 
 
 The blue line shows least square estimate by fitting the data and the shaded region shows 95% confidence interval around the estimates.
@@ -81,6 +83,20 @@ lm_sales = lm(Sales ~ TV, data = Advertising)
 summary(lm_sales) # Review the results
 ```
 We get Intercept as 7.032 and slope as 0.047. In other words, additional 1000$ increase in advertising spend on TV will increase the sales by 47.5 units and for no advertising, we will get 7032 sales.
+
+```{r}
+confint(lm_sales,level = 0.95)
+```
+
+
+```{r}
+ggplot(data = Advertising, aes(x = TV, y = Sales)) + 
+  geom_point(color="red") + 
+  geom_segment(aes(x = TV, y = Sales,
+                   xend = TV, yend = lm_sales$fitted.values), col = "grey35") + 
+  geom_abline(intercept = 7.032594, slope = 0.047537, size = 1, col = "deepskyblue3") + 
+  labs(title = "predicting Sales using TV advertising")
+```
 
 ## Confidence Interval
 
