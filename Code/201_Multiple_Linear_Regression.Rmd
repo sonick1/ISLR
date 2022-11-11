@@ -1,0 +1,388 @@
+---
+title: "201_Multiple_Linear_Regression"
+author: "Sonick"
+date: "11/2/2022"
+output: github_document
+---
+
+Multiple Linear Regression
+
+In Our previous Article, we understood why do we use Regression and what is simple linear Regression.
+
+Link to this story is here.
+
+In real world, we do not have single variable and we may want to see the effect of multiple variables with the response variable. Multiple Linear Regression helps us answer this question.
+
+We would be discussing the Additive approach to regression and then would also cover how can we add interaction among predictor variables in subsequent sections.
+
+## Additive Approach:
+Mathematically, Multiple Linear Regression can be expressed as:
+
+$$
+Y = \beta_{0} + \beta_{1}x_{1} + \beta_{2}x_{2} + ..... \beta_{p}x_{p} + ϵ
+$$
+Y = β0 + β1X1 + β2X2 + ··· + βpXp + ϵ,
+
+Where, βj is the average effect on Y of a one unit increase in Xj , holding all other predictors fixed
+
+### Estimating the coefficients:
+In Multiple Linear Regression as well, we use the approach of Least square to estimate the coefficients.
+$$
+RSS = \sum(y_i - \hat{y}_{i})
+$$
+
+When dealing with Multiple linear regression, we may want to understand
+- Is there a relationship between response variable?
+- which predictors help us in predicting response variable?
+- how accuraltely can we predict the response variable?
+- Given a set of predictors, what should be response value? 
+
+Lets consider the same data set of Advertising we used in our previous tutorial and fit the model
+```{r, echo = FALSE}
+# Load the data
+Advertising <- read.csv("C:/Users/SONICK/Desktop/Main/Data Science/Data/Advertising/Advertising.csv")
+Advertising <- Advertising[,2:5]
+head(Advertising)
+head(Advertising)
+```
+
+```{r}
+lm_sales <- lm(data = Advertising, Sales ~ .)
+summary(lm_sales)
+```
+Lets drop the insignificant variable and run the model again
+
+```{r}
+
+lm_sales <- lm(data = Advertising, Sales ~ . - Newspaper)
+summary(lm_sales)
+
+```
+
+We observe that both TV and Radio are significant but Newspaper effect is not significant on the data
+
+To evaluate our questions;
+1. Is there a relationship between predictor and response variable?
+Here, we will use hypothesis testing and develop hypothesis such that
+H0 : β1 = β2 = ··· = βp = 0
+Ha : at least one βj is non-zero.
+
+We use F statistic to perform this hypothesis test
+
+F = (RSS − RSS)/p / RSS/(n − p − 1)
+$$
+F = \frac{(TSS − RSS)/p}{ RSS/(n − p − 1) }
+$$
+
+$$
+ \frac{(y_i - \hat{y}_{i})}{(K +1 ) * MSE } * [ \frac{h_ii}{(1-hii)^{2}}]
+$$
+
+
+E{RSS/(n − p − 1)} = σ2
+and if H0 is True then, 
+E{(TSS − RSS)/p} = σ2.
+
+Hence when there is no relationship, F - stastistic will be close to 1
+If Ha is true then, E{(TSS − RSS)/p} > σ2; hence F will be greater than 1
+When there is no relationship one would observe F value to be close to 1 
+
+In Our example, F-statistic is 425.7 much bigger than 1 and p value associate with this value is  much smaller indicating we have sufficient evidence to reject null hypothesis.
+
+NOTE: apart from observing individual p values, it is always advisable to see p value of F statistic since in case of large number of predictors, some p values for variables by chance can also be less that 5%.
+
+(When number of predictors are greater than n, interpreting results using F value also might not be correct)
+
+2. Deciding on Important variables:
+When we have less number of p (Like in our example) we can use the individual p values to look for important variables. However, when we have large number of p, we may get some get some false discoveries.
+
+In such cases, we use techniques like 
+- forward selection: We start with 0 predictors and keep adding variables in subsequent models which are significant
+- Backward selection: We start will all predictors and remove variable with largest variable. Then model with p-1 variable is fit again and we repeat the same steps until we reach a threshold
+- Mixed Selection We start from no variables and add variables with lowest RSS. However as we add more variables, for some varibales the p value will increase from the threashold and we remove such variables.
+
+3. Model Fit:
+Here we will use R2 to evaluate the fit, which is also equal to will be equal to cor(Y,Y^)
+
+4. Prediction:
+There are 3 types of errors we could expect in prediction
+1. The coefficients are estimates and not true population
+2. We assume linear relationship however true f(X) may not be linear (Model Bias)
+3. Irreducable error, which can depend on measurements, condition of measurement etc.
+
+Qualitative prediction:
+
+
+Extensions of Linear Model:
+
+A linear model additive approach says that effect of one predictor X1 is independent of X2 which may not neccisorly be true. 
+For example, spending money on Radio advertising may increase effectiveness of TV advertising.
+then slope of tv should increase with radio
+This is also called as interaction effect.
+
+Y = β0 + β1X1 + β2X2 + ϵ
+
+Adding interaction term here,
+
+Y = β0 + β1X1 + β2X2 + β3X1X2 + ϵ.
+Y = β0 + (β1 + β3X2)X1 + β2X2 + ϵ
+
+For out Advertising Example, we can see that
+sales = β0 + β1 × TV + β2 × radio + β3 × (radio × TV) + ϵ
+      = β0 + (β1 + β3 × radio) × TV + β2 × radio + ϵ
+meaning, one unit increase in radio will increase TV by β3
+
+```{r}
+lm_sales <- lm(data = Advertising, formula = Sales ~ TV + Radio + TV:Radio)
+summary(lm_sales)
+```
+We can see that p value associated with interaction term indicates that it is indeed significant
+ R2 also increase to 96% from 89% indicating true relationship is not actually additive
+ 
+ (Note: If we include interaction term based on significance, then we should always include those variables which we have interacted, irrespective of their p value)
+
+
+```{r}
+plot(lm_sales)
+```
+
+```{r}
+hist(residuals(lm_sales))
+```
+```{r}
+library(car)
+vif(lm_sales,type = "predictor")
+# https://stats.stackexchange.com/questions/70679/which-variance-inflation-factor-should-i-be-using-textgvif-or-textgvif#:~:text=For%20the%20two%20continuous%20variables%2C%20G%20V%20I,their%20coefficients%20due%20to%20the%20level%20of%20collinearity.
+```
+
+```{r}
+library(car)
+# Check Homoscedascicity
+durbinWatsonTest(lm_sales)
+```
+
+
+
+```{r}
+library(MASS)
+stud_resids_s <- studres(lm_sales)
+leverage_s <- hatvalues(lm_sales)
+```
+
+```{r}
+plot(stud_resids_s)
+```
+
+```{r}
+which(stud_resids_s < -4)
+```
+
+```{r}
+# Leverage cutoff
+leverage_cutoff <- 4/nrow(Advertising)
+leverage_cutoff
+```
+
+```{r}
+plot(leverage_s)
+```
+
+```{r}
+high_lev_values <- which(leverage_s > leverage_cutoff)
+high_lev_values
+```
+
+```{r}
+high_stud_values <- which(stud_resids_s > 3)
+high_stud_values
+```
+
+
+if we remove this point and rerun are model, is there a lot of change in our parameters ? lets see
+
+
+```{r}
+plot(cooks.distance(lm_sales))
+```
+```{r}
+cooks <- which(cooks.distance(lm_sales) > 0.1)
+cooks
+```
+```{r}
+lm_sales_2 <- lm(data = Advertising[-cooks,], formula = Sales ~ TV + Radio + TV:Radio)
+summary(lm_sales_2)
+```
+
+
+```{r}
+lm_sales_2 <- lm(data = Advertising[-high_lev_values,], formula = Sales ~ TV + Radio + TV:Radio)
+summary(lm_sales_2)
+```
+```{r}
+plot(lm_sales_2)
+```
+
+```{r}
+plot(cooks.distance(lm_sales_2))
+```
+
+```{r}
+
+```
+
+
+Non Linear Relationships:
+
+We can include non linear function to incorporate Non linear relationship 
+
+for example, lets say we have dataset Auto,
+
+Lets say we want to fit a model to predict mpg using horsepower
+
+```{r}
+library(ggplot2)
+library(ISLR2)
+ggplot(data = Auto,aes(x = horsepower,y = mpg)) + geom_point()
+
+```
+
+We see this relationship is kind of non linear 
+
+```{r}
+lm_mpg_1 <- lm(data = Auto, formula = mpg ~ horsepower)
+summary(lm_mpg_1)
+```
+Lets try to add horse power sq also here 
+
+```{r}
+lm_mpg_2 <- lm(data = Auto, formula = mpg ~ poly(horsepower,2))
+summary(lm_mpg_2)
+```
+
+We can see that polynomial term increase R square of the model
+
+
+```{r}
+ggplot(data = Auto,aes(x = horsepower,y = mpg)) + geom_point() + 
+  geom_line(aes(y = fitted(lm_mpg_1)),color = 'blue') + 
+  geom_line(aes(y = fitted(lm_mpg_2)),color = 'red')
+
+```
+Lets see what happens when we increase the degree of polynomial 
+
+```{r}
+lm_mpg_3 <- lm(data = Auto, formula = mpg ~ poly(horsepower,5))
+summary(lm_mpg_3)
+```
+```{r}
+ggplot(data = Auto,aes(x = horsepower,y = mpg)) + geom_point() + 
+  geom_line(aes(y = fitted(lm_mpg_1)),color = 'blue',size = 1) + 
+  geom_line(aes(y = fitted(lm_mpg_2)),color = 'red', size = 1) + 
+  geom_line(aes(y = fitted(lm_mpg_3)),color = 'darkgreen',size = 1)
+
+```
+We can see that as we increase degree, the curve becomes wiggly and also their coefficients are not significant.
+
+Some Assumptions/problems with Linear Regression:
+
+1. Non-linearity of the response-predictor relationships
+
+The Linear model assumes that relationship between predictor and response.
+This can be checked by plotting residuals. There should be no pattern in residuals. Here in first graph, we can see that there is a U shaped pattern whereas the other graph looks like without pattern.
+
+```{r}
+plot(lm_mpg_1)
+```
+```{r}
+plot(lm_mpg_2)
+```
+2. Correlation of Error terms:
+
+It means that if we know ϵi, we should have no information about sign of ϵi+1. This correlation can occur in timeseries data, or if our predictors are related to each other, for example, in a study if we predict height using weight, the assumption could be violated if some people are member of same family and share same diet (as diet acts as a confounder)
+
+This can also be checked using residual graphs and see if can identify a trend or not.
+
+3. Non Constant variance of Error terms:
+
+It assumes that variance of error terms Var(ϵi) = σ2 is constant. it can also be identified by seeing if residuals have pattern or not. For example if the residuals graph has a funnel shape of it can indicate increasing residuals with values meaning non constant variance.
+
+4. Outliers:
+
+Outliers are values that have very high difference in Y and Y^. Outliers can cause RSE to increase which can affect the CI. It can be difficult to decide what is an outlier, hence we can plot studentized residuals to compute this. 
+computed by dividing each residual ei by its standard error. Observations with greater than 3 studentized residuals can be possible outliers
+
+
+
+
+
+```{r}
+library(MASS)
+stud_resids_1 <- studres(lm_mpg_1)
+stud_resids_2 <- studres(lm_mpg_2)
+leverage_1 <- hatvalues(lm_mpg_1)
+leverage_2 <- hatvalues(lm_mpg_2)
+pre_1 <- Auto$horsepower
+
+```
+
+```{r}
+# Leverage cutoff
+leverage_cutoff <- 3/nrow(Auto)
+leverage_cutoff
+```
+
+
+```{r}
+high_lev_values <- which(leverage_2 > leverage_cutoff)
+high_lev_values
+```
+
+```{r}
+high_stud_values <- which(stud_resids_2 > 3)
+high_stud_values
+```
+```{r}
+high_lev_stud_values <- intersect(high_stud_values,high_lev_values)
+high_lev_stud_values
+```
+```{r}
+Auto$high_stud_values <- 0
+Auto$high_stud_values[high_stud_values] <- 1
+Auto$high_stud_values
+
+Auto$high_lev_values <- 0
+Auto$high_lev_values[high_lev_values] <- 1
+Auto$high_lev_values
+
+```
+```{r}
+ggplot(data = Auto,aes(x = horsepower,y = mpg,color = high_lev_values)) + geom_point()
+```
+```{r}
+ggplot(data = Auto,aes(x = horsepower,y = mpg,color = high_stud_values)) + geom_point()
+```
+
+Plot it with leverage
+```{r}
+par(mfrow = c(1,2))
+
+plot(pre_1,stud_resids_1)
+plot(pre_1,stud_resids_2)
+
+```
+5. High Leverage Points
+
+High leverage points are points which have high or unusval xi value.
+hi = 
+
+6. Collinearity:
+
+Collinearity occur when one variable is one independent variable is increased due to other.
+We can use a correlation matrix, of Variance inflation factor (VIF) to look for collinearity in our dataset.
+
+```{r}
+head(Auto)
+```
+
+
+
